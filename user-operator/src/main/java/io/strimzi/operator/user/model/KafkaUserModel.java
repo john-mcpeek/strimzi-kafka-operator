@@ -353,14 +353,14 @@ public class KafkaUserModel {
             }
 
             LOGGER.debugCr(reconciliation, "Loading request password from Kubernetes Secret {}", desiredPasswordSecretName());
-            this.scramSha512Password = new String(Base64.getDecoder().decode(password), StandardCharsets.US_ASCII);
+            this.scramSha512Password = Util.decodeFromBase64(password);
             return;
         } else if (userSecret != null) {
             // Secret already exists -> lets verify if it has a password
             String password = userSecret.getData().get(KEY_PASSWORD);
             if (password != null && !password.isEmpty()) {
                 LOGGER.debugCr(reconciliation, "Re-using password which already exists");
-                this.scramSha512Password = new String(Base64.getDecoder().decode(password), StandardCharsets.US_ASCII);
+                this.scramSha512Password = Util.decodeFromBase64(password);
                 return;
             }
         }
@@ -377,7 +377,7 @@ public class KafkaUserModel {
      * @return decoded value
      */
     protected byte[] decodeFromSecret(Secret secret, String key) {
-        return Base64.getDecoder().decode(secret.getData().get(key));
+        return Util.decodeBytesFromBase64(secret.getData().get(key));
     }
 
     /**

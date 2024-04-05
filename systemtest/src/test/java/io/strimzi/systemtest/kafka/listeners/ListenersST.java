@@ -18,6 +18,7 @@ import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
 import io.strimzi.api.kafka.model.kafka.listener.ListenerAddress;
 import io.strimzi.api.kafka.model.kafka.listener.ListenerStatus;
 import io.strimzi.api.kafka.model.user.KafkaUser;
+import io.strimzi.operator.common.Util;
 import io.strimzi.operator.common.model.Labels;
 import io.strimzi.systemtest.AbstractST;
 import io.strimzi.systemtest.Environment;
@@ -334,7 +335,7 @@ public class ListenersST extends AbstractST {
 
         LOGGER.info("Checking if generated password has {} characters", passwordLength);
         String password = kubeClient().namespace(testStorage.getNamespaceName()).getSecret(testStorage.getUsername()).getData().get("password");
-        String decodedPassword = new String(Base64.getDecoder().decode(password));
+        String decodedPassword = Util.decodeFromBase64(password);
 
         assertEquals(decodedPassword.length(), passwordLength);
 
@@ -2390,7 +2391,7 @@ public class ListenersST extends AbstractST {
 
             LOGGER.info("Encoding {}.crt", kafkaBroker);
 
-            ByteArrayInputStream publicCert = new ByteArrayInputStream(Base64.getDecoder().decode(cert.getBytes()));
+            ByteArrayInputStream publicCert = new ByteArrayInputStream(Util.decodeBytesFromBase64(cert.getBytes()));
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
             Certificate certificate = certificateFactory.generateCertificate(publicCert);
 
